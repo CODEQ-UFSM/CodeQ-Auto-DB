@@ -61,8 +61,10 @@ def insertSecaoInTrilha(secao, trilha, cursor, db):
 
 def insertAulaInSecao(aula, i, descricao, data, imagem, secao, cursor, db):
     id = str(getSecaoIdByName(secao, cursor)[0][0])
-    sql = 'INSERT INTO aula(nome,num_ordem,descricao,data,imagem,id_secao) VALUES ("'+aula+'",'+str(i)+',"'+descricao+'",null,"'+imagem+'",'+id+')'
-    cursor.execute(sql)
+    data='null'
+    sql = 'INSERT INTO aula(nome,num_ordem,descricao,data,imagem,id_secao) VALUES (%s,%s,%s,%s,%s,%s)'
+    val=(aula, i,descricao,data,imagem,id)
+    cursor.execute(sql, val)
     db.commit()
 
 def insertPaginaInAula(j, HTML_FINAL, aula, secao, cursor, db):
