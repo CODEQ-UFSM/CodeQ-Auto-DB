@@ -21,11 +21,16 @@ def executeScriptsFromFile(filename, cursor):
 def getSubfolderNameThatContains(dir, substring):
     return [string for string in os.listdir(dir if dir != '' else None) if substring in string][0]
 
-def cleanHtmlFromDir(dir):
+def getHtmlFromDir(dir):
     dir = dir if dir != '' else None
+    htmls=[]
     for item in os.listdir(dir):
         if item.endswith(".html"):
-            os.remove(os.path.join(dir, item))
+            htmls.append(os.path.join(dir, item))
+    return htmls
 
-def addFatherDir(father,sub):
-    return None
+def getFoldersFromDir(dir):
+    dir = dir if dir != '' else None
+    return [dir + '/' + d for d in os.listdir(dir) if os.path.isdir(os.path.join(dir, d))]
+
+#def orderDirByOrderArray(order_array, dir):
