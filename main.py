@@ -19,12 +19,13 @@ cursor = db.cursor(buffered = True)
 
 # Import existent database
 executeScriptsFromFile('codeqmodelo.sql', cursor)
-print('Importado com sucesso!')
+#print('Importado com sucesso!')
 
 # Identificando pasta principal
 pasta_trilhas = getSubfolderNameThatContains('', 'Trilhas')
 
 for trilha in trilhas:
+    print('Entrando na trilha ' + trilha)
     # ENTRAR NO HTML DE CADA AULA -> VER A ORDEM DAS AULAS -> ADICIONAR AS AULAS EM ORDEM
     pasta = pasta_trilhas + '/' + getSubfolderNameThatContains(pasta_trilhas, trilha)
     full_secoes = getFoldersFromDir(pasta)
@@ -37,7 +38,44 @@ for trilha in trilhas:
     secoes_em_ordem = [t for t in soup.find_all(text=True) if t.parent.name in ['h4']] # As seções estão em um elemento h4
 
     for secao in secoes_em_ordem:
+        print('Entrando na seção ' + secao)
         insertSecaoInTrilha(secao, trilha, cursor, db)
-        print('kkk')
-        full_aulas = getFoldersFromDir(pasta)
-        html_aulas = [secao + '.html' for secao in full_secoes]
+        element = getElementThatContains(full_secoes, secao)
+        pasta_secao = full_secoes[element]
+        secao_html = pasta_secao + '.html'
+        plain_html = open(secao_html, 'r', encoding='utf8').read()
+        soup = BeautifulSoup(plain_html, 'html.parser')
+
+        aulas_em_ordem = [t for t in soup.find_all(text=True) if t.parent.name in ['a', 'td']]
+
+        full_aulas = getFoldersFromDir(pasta_secao)
+        i = 1
+        for aula in aulas_em_ordem:
+            if getElementThatContains(full_aulas, aula) != -1:
+                print('Entrando na aula: '+aula)
+                descricao = ''
+                data = ''
+                imagem = '' # TENHO QUE DAR UM JEITO NISSO AQUI
+                insertAulaInSecao(aula, i, descricao, data, imagem, secao, cursor, db)
+                html_aulas = [secao + '.html' for secao in full_secoes]
+
+                element = getElementThatContains(full_aulas, aula)
+                pasta_aula = full_aulas[element]
+                aula_html = pasta_aula + '.html'
+                plain_html = open(aula_html, 'r', encoding='utf8').read()
+                soup = BeautifulSoup(plain_html, 'html.parser')
+                paginas_em_ordem = [t for t in soup.find_all(text=True) if t.parent.name in ['a', 'figure']]
+
+                j = 1
+                for pagina in paginas_em_ordem:
+                    html_paginas = getHtmlFromDir(pasta_aula)
+                    element = getElementThatContains(html_paginas, pagina)
+                    html_atual = html_paginas[element]
+                    plain_html = open(html_atual, 'r', encoding='utf8').read()
+                    soup = BeautifulSoup(plain_html, 'html.parser')
+                    HTML_FINAL = (' '.join(map(str, soup.article.contents))).replace('\n', '')
+                    insertPaginaInAula(j, HTML_FINAL, aula, secao, cursor, db)
+                    j = j + 1
+
+                i = i + 1
+
