@@ -63,7 +63,7 @@ for trilha in trilhas:
                     descricao = ''
                     data = ''
                     try:
-                        imagem = str(soup.find_all("img", {"class": "page-cover-image"})[0])
+                        imagem = str(soup.find_all("img", {"class": "page-cover-image"})[0]['src'])
                     except:
                         imagem=''
                     insertAulaInSecao(aula, i, descricao, data, imagem, secao, cursor, db)
@@ -85,4 +85,3 @@ for trilha in trilhas:
                         j = j + 1
 
                     i = i + 1
-
