@@ -1,9 +1,13 @@
 import mysql.connector
 from utils import *
 from bs4 import BeautifulSoup
+import urllib.parse
+import shutil
+import random
+import string
 import os
 
-trilhas = ['Pensamento', 'Mat']
+trilhas = ['Mat', 'Pensamento']
 
 dbname = 'codeqatualizado'
 db = mysql.connector.connect(host="localhost", user="root", password="", buffered = True)
@@ -23,6 +27,9 @@ executeScriptsFromFile('codeqmodelo.sql', cursor)
 
 # Identificando pasta principal
 pasta_trilhas = getSubfolderNameThatContains('', 'Trilhas')
+
+clearFolder('Images')
+letters = string.ascii_lowercase
 
 for trilha in trilhas:
     print('Entrando na trilha ' + trilha)
@@ -80,6 +87,24 @@ for trilha in trilhas:
                         html_atual = html_paginas[element]
                         plain_html = open(html_atual, 'r', encoding='utf8').read()
                         soup = BeautifulSoup(plain_html, 'html.parser')
+
+                        images = soup.find_all('img')
+                        k = 0
+                        for image in images:
+                            if image['src'][:5] != 'https':
+                                image_folder = pasta_aula+'/'+urllib.parse.unquote(image['src'])
+                                try:
+                                    shutil.move(image_folder,'Images')
+                                    old_name = soup.find_all('img')[k]['src'].split("/", 1)[1]
+                                    new_name = ''.join(random.choice(letters) for i in range(15)) + '.png'
+                                    os.rename('Images/'+old_name, 'Images/'+new_name)
+                                    soup.find_all('img')[k]['src'] = '<?php echo $this->asset; ?>img/aulas/' + new_name
+                                except:
+                                    print('Acho que imagem já existe')
+                                #soup.find_all('img')[k]['src'] = '<?php echo $this->asset; ?>img/articles/' + soup.find_all('img')[k]['src'].split("/", 1)[1]
+                                #soup.find_all('img')[k]['src'] = '<?php echo $this->asset; ?>img/aulas/' + new_name
+                            k = k + 1
+
                         HTML_FINAL = (' '.join(map(str, soup.article.contents))).replace('\n', '')
                         insertPaginaInAula(j, HTML_FINAL, aula, secao, cursor, db)
                         j = j + 1
