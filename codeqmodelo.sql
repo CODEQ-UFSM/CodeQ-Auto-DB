@@ -47,6 +47,7 @@ CREATE TABLE `pagina` (
   `id_pagina` int(15) UNSIGNED NOT NULL,
   `num_ordem` int(11) DEFAULT NULL,
   `html` longtext DEFAULT NULL,
+  `titulo` text DEFAULT NULL,
   `id_aula` int(10) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

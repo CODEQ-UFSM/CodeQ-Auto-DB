@@ -63,14 +63,14 @@ def insertAulaInSecao(aula, i, descricao, data, imagem, secao, cursor, db):
     id = str(getSecaoIdByName(secao, cursor)[0][0])
     data='null'
     sql = 'INSERT INTO aula(nome,num_ordem,descricao,data,imagem,id_secao) VALUES (%s,%s,%s,%s,%s,%s)'
-    val=(aula, i,descricao,data,imagem,id)
+    val=(str(aula), i,str(descricao),str(data),str(imagem),id)
     cursor.execute(sql, val)
     db.commit()
 
-def insertPaginaInAula(j, HTML_FINAL, aula, secao, cursor, db):
+def insertPaginaInAula(j, HTML_FINAL, titulo, aula, secao, cursor, db):
     id_aula = str(getAulaIdByName(aula, secao, cursor)[0][0])
-    sql = 'INSERT INTO pagina(num_ordem, html, id_aula) VALUES (%s, %s, %s)'
-    val = (str(j),HTML_FINAL,id_aula)
+    sql = 'INSERT INTO pagina(num_ordem, html, titulo, id_aula) VALUES (%s, %s, %s, %s)'
+    val = (str(j),HTML_FINAL,titulo,id_aula)
     cursor.execute(sql,val)
     db.commit()
 
